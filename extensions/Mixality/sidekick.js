@@ -1,3 +1,9 @@
+// Name: SIDEKICK
+// ID: gpioExtension
+// Description: SIDEKICK blocks.
+// By: Mixality <https://github.com/Mixality/>
+// License: MIT
+
 (function (Scratch) {
     "use strict";
 

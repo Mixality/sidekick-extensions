@@ -1,5 +1,6 @@
 [
   // This file supports comments
+  "Mixality/sidekick",
   "lab/text",
   "stretch",
   "gamepad",
