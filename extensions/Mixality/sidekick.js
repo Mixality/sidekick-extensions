@@ -45,6 +45,8 @@
     const TEMPERATURE = 20;
     const SPEED_OF_SOUND = 33100 + (0.6 * TEMPERATURE);
 
+    let sensorState = false;
+
     let startTimeChanged = [false, false, false, false, false, false, false, false, false];
     let endTimeChanged = [false, false, false, false, false, false, false, false, false];
     let waitingBetweenTrigger = [false, false, false, false, false, false, false, false, false];
@@ -644,6 +646,92 @@
                     },
 
                     {
+                        opcode: 'startWhenTrue',
+                        text: 'Wenn [CONDITION]',
+                        blockType: BlockType.HAT,
+                        arguments: {
+                            CONDITION: {
+                                type: ArgumentType.BOOLEAN,
+                                defaultValue: '',
+                                acceptReporters: true
+                            }
+                            // ,
+                            // VALUE: {
+                            //     type: ArgumentType.STRING,
+                            //     defaultValue: '',
+                            //     acceptReporters: true
+                            // }
+                        }
+                    },
+                    {
+                        opcode: 'waitUntilTrueCondition',
+                        text: 'Warte bis [CONDITION]',
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            CONDITION: {
+                                type: ArgumentType.BOOLEAN,
+                                defaultValue: '',
+                                acceptReporters: true
+                            }
+                            // ,
+                            // VALUE: {
+                            //     type: ArgumentType.STRING,
+                            //     defaultValue: '',
+                            //     acceptReporters: true
+                            // }
+                        }
+                    },
+
+                    {
+                        opcode: 'waitUntil',
+                        text: 'Warte bis [CONDITION]',
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            CONDITION: {
+                                type: ArgumentType.BOOLEAN,
+                                defaultValue: '',
+                                acceptReporters: true
+                            }
+                            // ,
+                            // VALUE: {
+                            //     type: ArgumentType.STRING,
+                            //     defaultValue: '',
+                            //     acceptReporters: true
+                            // }
+                        }
+                    },
+
+                    {
+                        opcode: 'waitForSeconds',
+                        text: 'Warte [DURATION] Sekunden',
+                        blockType: BlockType.COMMAND,
+                        arguments: {
+                            DURATION: {
+                                type: ArgumentType.STRING,
+                                defaultValue: '1'
+                            }
+                        }
+                    },
+
+                    {
+                        opcode: 'compareConditions',
+                        text: 'Ist [VALUE1] = [VALUE2]?',
+                        blockType: BlockType.BOOLEAN,
+                        arguments: {
+                            VALUE1: {
+                                type: ArgumentType.STRING,
+                                defaultValue: '',
+                                acceptReporters: true
+                            },
+                            VALUE2: {
+                                type: ArgumentType.STRING,
+                                defaultValue: '',
+                                acceptReporters: true
+                            }
+                        }
+                    },
+
+                    {
                         opcode: 'setStep',
                         text: 'Setze Assistenzschritt auf [STEP]',
                         blockType: BlockType.COMMAND,
@@ -656,27 +744,53 @@
                     },
 
                     {
-                        opcode: 'whenStep',
-                        text: 'Wenn Assistenzschritt = [STEP]',
-                        blockType: BlockType.HAT,
+                        opcode: 'modifyAssistanceStep',
+                        text: '[OPERATION] Assistenzschritt um [STEP]',
+                        blockType: BlockType.COMMAND,
                         arguments: {
                             STEP: {
                                 type: ArgumentType.STRING,
                                 defaultValue: '1'
+                            },
+                            OPERATION: {
+                                type: ArgumentType.STRING,
+                                // defaultValue: '1'
+                                menu: 'assistanceStepOperation',
+                                defaultValue: '+'
                             }
                         }
                     },
                     {
-                        opcode: 'waitFor',
-                        text: 'Warte [DURATION] Sekunden',
-                        blockType: BlockType.COMMAND,
-                        arguments: {
-                            DURATION: {
-                                type: ArgumentType.STRING,
-                                defaultValue: '1'
-                            }
-                        }
+                        opcode: 'getStep',
+                        text: 'Aktueller Assistenzschritt',
+                        blockType: BlockType.REPORTER
                     },
+                    // {
+                    //     opcode: 'whenStep',
+                    //     text: 'Wenn Assistenzschritt = [STEP]',
+                    //     blockType: BlockType.HAT,
+                    //     arguments: {
+                    //         STEP: {
+                    //             type: ArgumentType.STRING,
+                    //             defaultValue: '1'
+                    //         }
+                    //     }
+                    // },
+
+                    // {
+                    //     opcode: 'waitUntilTrue',
+                    //     text: 'Warte bis [CONDITION]',
+                    //     blockType: BlockType.COMMAND,
+                    //     arguments: {
+                    //         CONDITION: {
+                    //             defaultValue: '',
+                    //             acceptReporters: true
+                    //         }
+                    //     }
+                    // },
+
+
+
 
                     "---",
 
@@ -749,6 +863,26 @@
                         xml: "<sep gap='24'/><label text='UV-Sensor-Blöcke'/><sep gap='6'/>",
                     },
 
+                    {
+                        opcode: "getSensorState",
+                        blockType: Scratch.BlockType.BOOLEAN,
+                        // text: Scratch.translate("open a file as [as]"),
+                        // text: "Ist Sensor [SENSOR] [HILO]?",
+                        text: "Ist UV-Sensor [SENSOR] ausgelöst?",
+                        arguments: {
+                            // HILO: {
+                            //     type: Scratch.ArgumentType.STRING,
+                            //     menu: "hiloSensor",
+                            //     defaultValue: '1'
+                            // },
+                            SENSOR: {
+                                type: ArgumentType.STRING,
+                                menu: 'uvSensorNumber',
+                                defaultValue: '18'
+                            }
+                        },
+                    },
+
                     /*
                     {
                         opcode: 'whenUVSensor85',
@@ -777,14 +911,33 @@
                         xml: "<sep gap='24'/><label text='Button-Blöcke'/><sep gap='6'/>",
                     },
 
+                    // {
+                    //     opcode: 'whenButtonPressed',
+                    //     text: 'Wenn Button [BUTTON] [HILO] wurde',
+                    //     blockType: BlockType.HAT,
+                    //     arguments: {
+                    //         HILO: {
+                    //             type: ArgumentType.STRING,
+                    //             menu: 'hiloButton',
+                    //             defaultValue: '1'
+                    //         },
+                    //         BUTTON: {
+                    //             type: ArgumentType.STRING,
+                    //             menu: 'buttonNumber',
+                    //             defaultValue: '4'
+                    //         }
+                    //     }
+                    // },
+
                     {
-                        opcode: 'whenButtonPressed',
-                        text: 'Wenn Button [BUTTON] [HILO] wurde',
-                        blockType: BlockType.HAT,
+                        opcode: "buttonState",
+                        blockType: Scratch.BlockType.BOOLEAN,
+                        // text: Scratch.translate("open a file as [as]"),
+                        text: "Ist Button [BUTTON] [HILO]?",
                         arguments: {
                             HILO: {
-                                type: ArgumentType.STRING,
-                                menu: 'hiloButton',
+                                type: Scratch.ArgumentType.STRING,
+                                menu: "hiloButton",
                                 defaultValue: '1'
                             },
                             BUTTON: {
@@ -792,7 +945,7 @@
                                 menu: 'buttonNumber',
                                 defaultValue: '4'
                             }
-                        }
+                        },
                     },
 
                     "---",
@@ -923,6 +1076,16 @@
                                 { text: 'losgelassen', value: '0' }
                             ]
                     },
+
+                    hiloSensor: {
+                        // eslint-disable-next-line max-len
+                        items:
+                            [
+                                { text: 'ausgelöst', value: '1' },
+                                { text: 'nicht ausgelöst', value: '0' }
+                            ]
+                    },
+                    
                     buttonNumber: {
                         // eslint-disable-next-line max-len
                         items: [
@@ -930,6 +1093,20 @@
                             { text: '2', value: '17' },
                             { text: '3', value: '27' },
                             { text: '4', value: '22' },]
+                    },
+                    uvSensorNumber: {
+                        // eslint-disable-next-line max-len
+                        items: [
+                            { text: '1', value: '18' },
+                            { text: '2', value: '23' },
+                            { text: '3', value: '24' },
+                            { text: '4', value: '5' },
+                            { text: '5', value: '11' },
+                            { text: '6', value: '9' },
+                            { text: '7', value: '6' },
+                            { text: '8', value: '13' },
+                            { text: '9', value: '19' }
+                        ]
                     },
                     stripNumber: {
                         // eslint-disable-next-line max-len
@@ -954,7 +1131,7 @@
                         { text: '7', value: '7' },]
 
                     },
-                    uvSensorNumber: {
+                    uvSensorNumber1: {
                         acceptReporters: true,
                         items: [
                             { text: '1', value: '18' },
@@ -1022,6 +1199,15 @@
                             value: 'none'
                         }]
                     },
+                    assistanceStepOperation: {
+                        items: [{
+                            text: 'erhöhe',
+                            value: '+'
+                        }, {
+                            text: 'verringere',
+                            value: '-'
+                        }]
+                    },
                     resetStripColours: {
                         items: [{
                             text: 'Ja',
@@ -1039,6 +1225,27 @@
             const step = Cast.toNumber(args.STEP);
 
             currentStep = step;
+        }
+
+
+        modifyAssistanceStep(args) {
+            const step = Cast.toNumber(args.STEP);
+            const operation = Cast.toString(args.OPERATION);
+
+            if (operation === '+') {
+                currentStep += step;
+            } else if (operation === '-') {
+                currentStep -= step;
+                if (currentStep < 0) {
+                    currentStep = 0;
+                }
+            }
+            // currentStep = step;
+        }
+
+
+        getStep() {
+            return currentStep;
         }
 
         whenStep(args) {
@@ -1059,6 +1266,24 @@
         } // Get pin state (leave pin as input/output)
 
         whenButtonPressed(args) {
+            const buttonPinNumber = Cast.toNumber(args.BUTTON);
+            const buttonWatchedState = Cast.toString(args.HILO);
+            console.log("buttonPinNumber" + buttonPinNumber);
+            console.log("buttonWatchedState" + buttonWatchedState);
+
+            // Get pin state, set pin as input, make pull up
+            const buttonPinState = EditorPreload.gpioGet(buttonPinNumber, 0, 2);
+
+            if (buttonPinState == 1) {
+                if (buttonWatchedState == '0') return true;
+                else return false;
+            } else {
+                if (buttonWatchedState == '1') return true;
+                else return false;
+            }
+        }
+
+        buttonState(args) {
             const buttonPinNumber = Cast.toNumber(args.BUTTON);
             const buttonWatchedState = Cast.toString(args.HILO);
             console.log("buttonPinNumber" + buttonPinNumber);
@@ -2266,7 +2491,7 @@
         // VIDEO END
         // 
 
-        waitFor(args, util) {
+        waitForSeconds(args, util) {
             if (util.stackTimerNeedsInit()) {
                 const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
 
@@ -2278,12 +2503,119 @@
             }
         }
 
-        waitUntil(args, util) {
-            const condition = Cast.toBoolean(args.CONDITION);
+        // waitUntilTrue(args, util) {
+        //     // if (util.stackTimerNeedsInit()) {
+        //     //     const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
 
+        //     //     util.startStackTimer(duration);
+        //     //     this.runtime.requestRedraw();
+        //     //     util.yield();
+        //     // } else 
+        //     // if (!util.stackTimerFinished()) {
+        //     const condition = Cast.toBoolean(args.CONDITION);
+        //     if (!condition) {
+        //         util.yield();
+        //     }
+        // }
+        // // waitUntil(args, util) {
+        // //     const condition = Cast.toBoolean(args.CONDITION);
+        // //     if (!condition) {
+        // //         util.yield();
+        // //     }
+        // // }
+
+        waitUntilTrueCondition(args, util) {
+            // if (util.stackTimerNeedsInit()) {
+            //     const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
+
+            //     util.startStackTimer(duration);
+            //     this.runtime.requestRedraw();
+            //     util.yield();
+            // } else 
+            // if (!util.stackTimerFinished()) {
+            const condition = Cast.toBoolean(args.CONDITION);
             if (!condition) {
                 util.yield();
             }
+        }
+
+        startWhenTrue(args) {
+            // const pin = Cast.toNumber(args.GPIO);
+            // const val = Cast.toString(args.HILO);
+            // // const state = gpio.get(pin, -1, -1); // Get state of pin, leave pin as input/output, leave pull state
+            // const state = EditorPreload.gpioGet(pin, -1, -1); //11 Get state of pin, leave pin as input/output, leave pull state
+
+            // let binary = 0;
+            // if (val === 'high') binary = 1;
+            // return state === binary;
+            return Cast.toBoolean(args.CONDITION);
+        } // Get pin state (leave pin as input/output)
+
+        compareConditions(args, util) {
+            // if (util.stackTimerNeedsInit()) {
+            //     const duration = Math.max(0, 1000 * Cast.toNumber(args.DURATION));
+
+            //     util.startStackTimer(duration);
+            //     this.runtime.requestRedraw();
+            //     util.yield();
+            // } else 
+            // if (!util.stackTimerFinished()) {
+
+            // const condition = Cast.toNumber(args.CONDITION);
+            // const value = Cast.toNumber(args.VALUE);
+
+
+            // if (condition != value) {
+            //     util.yield();
+            // }
+
+
+            // const condition = Cast.toBoolean(args.CONDITION);
+            // const value = Cast.toNumber(args.VALUE);
+
+
+            // if (condition != value) {
+            //     util.yield();
+            // }
+
+            const format = function (string) {
+                // return Cast.toString(string).toLowerCase();
+                return Cast.toString(string);
+            };
+            return format(args.VALUE1) == format(args.VALUE2);
+        }
+
+        waitUntil(args, util) {
+            const condition = Cast.toBoolean(args.CONDITION);
+            if (!condition) {
+                util.yield();
+            }
+        }
+
+        getSensorState(args, util) {
+
+            const sensorPinNumber = Cast.toNumber(args.SENSOR);
+
+            // !!! TODO: UV-Sensor hier implementieren !!!
+            // const sensorPinState = EditorPreload.uvGet(sensorPinNumber);
+            const sensorPinState = 0;
+
+            // if (buttonPinState == 1) {
+            if (sensorPinState == 1) {
+                // if (buttonWatchedState == '0') return true;
+                return true;
+                // else return false;
+            } else {
+                // if (buttonWatchedState == '1') return true;
+                return false;
+                // else return false;
+            }
+
+            // const format = function (string) {
+            //     // return Cast.toString(string).toLowerCase();
+            //     return Cast.toString(string);
+            // };
+            // return format(args.VALUE1) == format(args.VALUE1);
         }
     }
 
