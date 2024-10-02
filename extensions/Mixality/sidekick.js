@@ -14,6 +14,7 @@
     let isCheckingUV = false;
     let performedUVSensorCheck = false;
     let distanceToUVSensor = 0;
+    
 
     let uvStartTime = 0;
     let uvEndTime = 0;
